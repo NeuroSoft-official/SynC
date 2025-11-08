@@ -24,8 +24,11 @@ jobs:
           sudo apt update
           sudo apt install -y checkinstall
           pip install -r requirements.txt || true
+          
+      - name: List repository files (debug)
+        run: ls -R
 
-      - name: Make sync executable
+      - name: Make sync.py executable
         run: chmod +x sync.py
 
       - name: Build .deb package
@@ -34,11 +37,11 @@ jobs:
           sudo checkinstall --install=no \
             --pkgname=sync \
             --pkgversion=1.0 \
-            --maintainer="Разработчик <you@example.com>" \
+            --maintainer='Разработчик <you@example.com>' \
             --pkglicense="MIT" \
             --pkggroup="editors" \
             --pakdir=build \
-            bash -c 'install -m 755 sync /usr/local/bin/sync'
+            bash -c 'install -m 755 sync.py /usr/local/bin/sync'
 
       - name: Upload built package
         uses: actions/upload-artifact@v4
