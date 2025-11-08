@@ -1,0 +1,47 @@
+name: Build and Package Sync Editor
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-deb:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y checkinstall
+          pip install -r requirements.txt || true
+
+      - name: Make sync executable
+        run: chmod +x sync
+
+      - name: Build .deb package
+        run: |
+          mkdir -p build
+          sudo checkinstall --install=no \
+            --pkgname=sync \
+            --pkgversion=1.0 \
+            --maintainer="Разработчик <you@example.com>" \
+            --pkglicense="MIT" \
+            --pkggroup="editors" \
+            --pakdir=build \
+            bash -c 'install -m 755 sync /usr/local/bin/sync'
+
+      - name: Upload built package
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-deb
+          path: build/*.deb
